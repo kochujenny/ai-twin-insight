@@ -125,7 +125,7 @@ export default function Dashboard() {
             </div>
           </div>
           <p className="text-muted-foreground">
-            Monitor developer productivity, knowledge capture, and onboarding progress
+            Monitor developer productivity, knowledge capture and onboarding progress
           </p>
         </div>
 
