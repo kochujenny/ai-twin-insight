@@ -1,110 +1,93 @@
 import { useState, useEffect } from "react";
 import { MetricCard } from "@/components/dashboard/MetricCard";
-import { UsageChart } from "@/components/dashboard/UsageChart";
-import { OnboardingProgress } from "@/components/dashboard/OnboardingProgress";
-import { KnowledgeGraph } from "@/components/dashboard/KnowledgeGraph";
-import { RecentActivity } from "@/components/dashboard/RecentActivity";
+import { DashboardFilters } from "@/components/dashboard/DashboardFilters";
+import { DeveloperContributions } from "@/components/dashboard/DeveloperContributions";
+import { DocumentationGapAlerts } from "@/components/dashboard/DocumentationGapAlerts";
+import { BugOriginTraceability } from "@/components/dashboard/BugOriginTraceability";
+import { OnboardingImpact } from "@/components/dashboard/OnboardingImpact";
 import { 
-  Users, 
+  Rocket, 
+  GraduationCap, 
+  BookOpen, 
+  Target, 
+  Shield, 
   MessageSquare, 
-  TrendingUp, 
+  Search, 
+  RefreshCw, 
   Clock, 
-  Database, 
+  Gauge,
+  TrendingUp,
   Brain,
-  Activity,
-  Target
+  Activity
 } from "lucide-react";
 
 // Mock data - in a real app, this would come from APIs
-const mockUsageData = [
-  { date: "2024-09-16", queries: 145, activeUsers: 12, knowledgeCapture: 8 },
-  { date: "2024-09-17", queries: 162, activeUsers: 15, knowledgeCapture: 12 },
-  { date: "2024-09-18", queries: 134, activeUsers: 11, knowledgeCapture: 6 },
-  { date: "2024-09-19", queries: 189, activeUsers: 18, knowledgeCapture: 15 },
-  { date: "2024-09-20", queries: 201, activeUsers: 22, knowledgeCapture: 18 },
-  { date: "2024-09-21", queries: 178, activeUsers: 19, knowledgeCapture: 14 },
-  { date: "2024-09-22", queries: 223, activeUsers: 25, knowledgeCapture: 21 },
+const mockDeveloperContributions = [
+  { name: "Sarah Chen", contributions: 28, color: "hsl(var(--primary))" },
+  { name: "Alex Rodriguez", contributions: 35, color: "hsl(var(--success))" },
+  { name: "Jordan Kim", contributions: 15, color: "hsl(var(--warning))" },
+  { name: "Michael Zhang", contributions: 22, color: "hsl(var(--info))" }
 ];
 
-const mockDevelopers = [
+const mockDocumentationData = [
   {
-    name: "Sarah Chen",
-    startDate: "2024-09-15",
-    progress: 85,
-    status: "ramping" as const,
-    queriesUsed: 47,
-    timeToProductivity: "3 days remaining"
+    feature: "User Authentication System",
+    hasPRD: true,
+    hasDesign: true,
+    hasMeetingNotes: true,
+    hasRationale: false
   },
   {
-    name: "Alex Rodriguez",
-    startDate: "2024-09-10",
-    progress: 100,
-    status: "productive" as const,
-    queriesUsed: 73,
-    timeToProductivity: "Complete"
+    feature: "Payment Processing Module",
+    hasPRD: true,
+    hasDesign: false,
+    hasMeetingNotes: true,
+    hasRationale: true
   },
   {
-    name: "Jordan Kim",
-    startDate: "2024-09-20",
-    progress: 35,
-    status: "onboarding" as const,
-    queriesUsed: 18,
-    timeToProductivity: "7 days remaining"
+    feature: "Notification Engine",
+    hasPRD: false,
+    hasDesign: true,
+    hasMeetingNotes: false,
+    hasRationale: false
+  },
+  {
+    feature: "Analytics Dashboard",
+    hasPRD: true,
+    hasDesign: true,
+    hasMeetingNotes: true,
+    hasRationale: true
+  },
+  {
+    feature: "File Upload Service",
+    hasPRD: false,
+    hasDesign: false,
+    hasMeetingNotes: true,
+    hasRationale: false
   }
 ];
 
-const mockKnowledgeData = [
-  { name: "Git Commits", value: 2340, color: "hsl(217 91% 60%)" },
-  { name: "Jira Tickets", value: 1450, color: "hsl(142 76% 36%)" },
-  { name: "Slack Messages", value: 3210, color: "hsl(199 89% 48%)" },
-  { name: "Notion Docs", value: 890, color: "hsl(38 92% 50%)" },
-  { name: "Figma Files", value: 560, color: "hsl(280 100% 70%)" }
+const mockBugOriginData = [
+  { category: "Unclear Requirements", count: 23, percentage: 34, color: "hsl(var(--destructive))" },
+  { category: "Technical Debt", count: 18, percentage: 27, color: "hsl(var(--warning))" },
+  { category: "Integration Issues", count: 15, percentage: 22, color: "hsl(var(--info))" },
+  { category: "Performance", count: 11, percentage: 17, color: "hsl(var(--success))" }
 ];
 
-const mockActivities = [
-  {
-    id: "1",
-    type: "query" as const,
-    user: "Sarah Chen",
-    action: "Asked about authentication implementation patterns",
-    timestamp: "2 minutes ago",
-    details: "\"How do we handle JWT token refresh in the mobile app?\""
-  },
-  {
-    id: "2",
-    type: "commit" as const,
-    user: "Alex Rodriguez",
-    action: "Linked commit to knowledge base",
-    timestamp: "15 minutes ago",
-    details: "Added rationale for database migration strategy"
-  },
-  {
-    id: "3",
-    type: "onboarding" as const,
-    user: "Jordan Kim",
-    action: "Completed environment setup module",
-    timestamp: "1 hour ago"
-  },
-  {
-    id: "4",
-    type: "document" as const,
-    user: "Michael Zhang",
-    action: "Updated API documentation",
-    timestamp: "2 hours ago",
-    details: "Added context for rate limiting decisions"
-  },
-  {
-    id: "5",
-    type: "query" as const,
-    user: "Sarah Chen",
-    action: "Queried about component architecture",
-    timestamp: "3 hours ago",
-    details: "\"Why did we choose this specific state management pattern?\""
-  }
+const mockOnboardingImpactData = [
+  { date: "Week 1", beforeSystem: 21, afterSystem: 12 },
+  { date: "Week 2", beforeSystem: 19, afterSystem: 10 },
+  { date: "Week 3", beforeSystem: 22, afterSystem: 11 },
+  { date: "Week 4", beforeSystem: 20, afterSystem: 9 },
+  { date: "Week 5", beforeSystem: 18, afterSystem: 8 },
+  { date: "Week 6", beforeSystem: 17, afterSystem: 7 }
 ];
 
 export default function Dashboard() {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [timeRange, setTimeRange] = useState("30d");
+  const [selectedProject, setSelectedProject] = useState("all");
+  const [selectedDeveloper, setSelectedDeveloper] = useState("all");
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -114,8 +97,8 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex flex-col space-y-2">
+        {/* Header Section */}
+        <div className="flex flex-col space-y-4">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
               AI Developer Twin - CTO Dashboard
@@ -125,96 +108,142 @@ export default function Dashboard() {
             </div>
           </div>
           <p className="text-muted-foreground">
-            Monitor developer productivity, knowledge capture, and onboarding progress
+            Monitor team knowledge retention, onboarding efficiency, quality alignment, and developer contributions
           </p>
+          
+          {/* Filters */}
+          <DashboardFilters
+            timeRange={timeRange}
+            setTimeRange={setTimeRange}
+            selectedProject={selectedProject}
+            setSelectedProject={setSelectedProject}
+            selectedDeveloper={selectedDeveloper}
+            setSelectedDeveloper={setSelectedDeveloper}
+          />
         </div>
 
-        {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Top KPIs */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <MetricCard
-            title="Active Developers"
-            value={25}
-            change="+12% from last week"
+            title="Average Time-to-Context (TTC)"
+            value="2.3 days"
+            change="-1.2 days improvement"
             changeType="positive"
-            icon={Users}
-            description="Currently using the AI twin"
+            icon={Rocket}
+            description="Time to understand feature context"
             gradient
           />
           <MetricCard
-            title="Daily Queries"
-            value={223}
-            change="+25% from yesterday"
-            changeType="positive"
-            icon={MessageSquare}
-            description="Questions answered today"
-            gradient
-          />
-          <MetricCard
-            title="Knowledge Items"
-            value="8.5K"
-            change="+3.2% this week"
-            changeType="positive"
-            icon={Database}
-            description="Captured context pieces"
-            gradient
-          />
-          <MetricCard
-            title="Avg. Onboarding Time"
+            title="Onboarding Ramp Time"
             value="8.2 days"
-            change="-2.1 days improvement"
+            change="-3.5 days improvement"
             changeType="positive"
-            icon={Clock}
+            icon={GraduationCap}
             description="Time to productivity"
             gradient
           />
-        </div>
-
-        {/* Charts and Detailed Views */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="lg:col-span-2">
-            <UsageChart data={mockUsageData} />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <OnboardingProgress developers={mockDevelopers} />
-          <KnowledgeGraph data={mockKnowledgeData} />
-          <RecentActivity activities={mockActivities} />
-        </div>
-
-        {/* Secondary Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <MetricCard
-            title="Query Success Rate"
-            value="94.2%"
-            change="+1.8% this month"
+            title="Feature Knowledge Coverage"
+            value="87%"
+            change="+12% this quarter"
+            changeType="positive"
+            icon={BookOpen}
+            description="Features with complete docs"
+            gradient
+          />
+          <MetricCard
+            title="Requirement Coverage Score"
+            value="92%"
+            change="+8% this month"
             changeType="positive"
             icon={Target}
-            description="Queries resolved successfully"
+            description="Clear requirement definition"
+            gradient
           />
           <MetricCard
-            title="Knowledge Gaps"
-            value={12}
-            change="-5 from last week"
+            title="Strategic Continuity"
+            value="94%"
+            change="+5% this quarter"
+            changeType="positive"
+            icon={Shield}
+            description="Features fully explainable"
+            gradient
+          />
+        </div>
+
+        {/* Key Visualizations */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <DeveloperContributions data={mockDeveloperContributions} />
+          <DocumentationGapAlerts data={mockDocumentationData} />
+        </div>
+
+        {/* Supporting Visuals */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <BugOriginTraceability data={mockBugOriginData} />
+          <OnboardingImpact data={mockOnboardingImpactData} />
+        </div>
+
+        {/* Secondary KPIs */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <MetricCard
+            title="Context Query Count per Feature"
+            value="12.4"
+            change="+2.1 this month"
+            changeType="positive"
+            icon={MessageSquare}
+            description="Avg queries per feature"
+          />
+          <MetricCard
+            title="Context Depth Usage"
+            value="78%"
+            change="+15% this quarter"
+            changeType="positive"
+            icon={Search}
+            description="Features accessed docs before coding"
+          />
+          <MetricCard
+            title="Decision Rationale Density"
+            value="6.8"
+            change="+1.3 this month"
             changeType="positive"
             icon={Brain}
-            description="Missing context identified"
+            description="Explanations per feature"
           />
           <MetricCard
-            title="Team Productivity"
-            value="+23%"
-            change="vs. pre-AI baseline"
+            title="Update Freshness"
+            value="85%"
+            change="+7% this month"
             changeType="positive"
-            icon={TrendingUp}
-            description="Overall efficiency gain"
+            icon={RefreshCw}
+            description="Features updated recently"
+          />
+        </div>
+
+        {/* Performance Indicators */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <MetricCard
+            title="First-Feature Delivery Gap"
+            value="4.2 days"
+            change="-1.8 days improvement"
+            changeType="positive"
+            icon={Clock}
+            description="Time to first meaningful contribution"
           />
           <MetricCard
-            title="System Health"
+            title="System Performance"
             value="99.8%"
             change="0.1% downtime this month"
             changeType="positive"
-            icon={Activity}
+            icon={Gauge}
             description="AI system uptime"
+          />
+          <MetricCard
+            title="Overall Team Velocity"
+            value="+28%"
+            change="vs. pre-AI baseline"
+            changeType="positive"
+            icon={TrendingUp}
+            description="Development speed improvement"
           />
         </div>
       </div>
