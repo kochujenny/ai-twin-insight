@@ -101,7 +101,7 @@ export default function Dashboard() {
         <div className="flex flex-col space-y-4">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Analytic Dashboard
+              Contextual-Analytic Dashboard
             </h1>
             <div className="text-sm text-muted-foreground">
               Last updated: {currentTime.toLocaleTimeString()}
